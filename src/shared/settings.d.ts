@@ -47,6 +47,13 @@ export interface Settings {
 
     spellCheckLanguages?: string[];
 
+    hyprcordPlugins?: {
+        tempmute?: {
+            installed?: boolean;
+            enabled?: boolean;
+        };
+    };
+
     audio?: {
         workaround?: boolean;
 

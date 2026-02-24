@@ -127,7 +127,6 @@ export default function HyprcordPlugins() {
                                         <BaseText size="md" weight="semibold" tag="h4">
                                             {plugin.name}
                                         </BaseText>
-                                        <Paragraph>{plugin.description}</Paragraph>
                                     </div>
                                     <div className={cl("plugins-installed-actions")}>
                                         <FormSwitch

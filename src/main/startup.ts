@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-//dimport "./updater";
+// dimport "./updater";
 import "./ipc";
 import "./userAssets";
 import "./vesktopProtocol";
@@ -13,15 +13,11 @@ import { app, BrowserWindow, nativeTheme } from "electron";
 
 // HyprCord Lite memory optimizations
 app.commandLine.appendSwitch("disable-features", "CalculateNativeWinOcclusion");
-app.commandLine.appendSwitch("disable-renderer-backgrounding");
-app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
 app.commandLine.appendSwitch("disable-component-update");
 app.commandLine.appendSwitch("disable-default-apps");
 app.commandLine.appendSwitch("disable-sync");
 app.commandLine.appendSwitch("disable-extensions");
 app.commandLine.appendSwitch("disable-breakpad");
-app.commandLine.appendSwitch("memory-pressure-off");
-app.disableHardwareAcceleration();
 
 import { DATA_DIR } from "./constants";
 import { createFirstLaunchTour } from "./firstLaunch";
@@ -70,9 +66,6 @@ function init() {
         app.commandLine.appendSwitch("disable-smooth-scrolling");
     }
 
-    app.commandLine.appendSwitch("disable-renderer-backgrounding");
-    app.commandLine.appendSwitch("disable-background-timer-throttling");
-    app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
     if (process.platform === "win32") {
         disabledFeatures.add("CalculateNativeWinOcclusion");
     }

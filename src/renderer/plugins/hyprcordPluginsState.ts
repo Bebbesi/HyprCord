@@ -4,8 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Settings } from "renderer/settings";
+
 export const HYPRCORD_PLUGINS_STATE_KEY = "hyprcord:plugins:state:v1";
 export const HYPRCORD_PLUGINS_STATE_EVENT = "hyprcord:plugins:state-change";
+const SETTINGS_KEY = "hyprcordPlugins" as const;
 
 export const HYPRCORD_PLUGIN_IDS = {
     TEMPMUTE: "tempmute"
@@ -69,14 +72,25 @@ function toState(input: any): HyprcordPluginsState {
 }
 
 export function loadHyprcordPluginsState(): HyprcordPluginsState {
-    if (typeof localStorage === "undefined") return cloneState(runtimeState);
+    const storedSettingsState = Settings.store[SETTINGS_KEY];
+
+    if (storedSettingsState) {
+        const parsed = toState(storedSettingsState);
+        runtimeState = cloneState(parsed);
+        return parsed;
+    }
 
     try {
+        if (typeof localStorage === "undefined") return cloneState(runtimeState);
+
         const raw = localStorage.getItem(HYPRCORD_PLUGINS_STATE_KEY);
         if (!raw) return cloneState(runtimeState);
 
         const parsed = toState(JSON.parse(raw));
         runtimeState = cloneState(parsed);
+
+        // One-time migration path from prior localStorage-only persistence.
+        Settings.store[SETTINGS_KEY] = cloneState(parsed);
         return parsed;
     } catch {
         return cloneState(runtimeState);
@@ -102,6 +116,7 @@ function notifyChange(state: HyprcordPluginsState) {
 
 function writeHyprcordPluginsState(state: HyprcordPluginsState) {
     runtimeState = cloneState(state);
+    Settings.store[SETTINGS_KEY] = cloneState(state);
 
     try {
         if (typeof localStorage !== "undefined") {

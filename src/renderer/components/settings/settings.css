@@ -129,22 +129,25 @@
 
 .vcd-settings-plugins-installed-row {
     border: 1px solid var(--border-subtle);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 12px;
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    background: var(--background-secondary);
+    align-items: center;
+    background: var(--background-tertiary);
 }
 
 .vcd-settings-plugins-installed-copy {
     min-width: 0;
+    flex: 1;
 }
 
 .vcd-settings-plugins-installed-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-end;
+    gap: 12px;
     flex-shrink: 0;
 }
 

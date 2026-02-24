@@ -4,7 +4,7 @@
     "private": true,
     "description": "hyprcord is a custom Discord desktop app",
     "keywords": [],
-    "homepage": "https://equicord.org",
+    "homepage": "https://example.com",
     "license": "GPL-3.0-or-later",
     "author": "Hyprcord",
     "main": "dist/js/main.js",

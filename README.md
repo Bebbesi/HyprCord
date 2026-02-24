@@ -1,122 +1,84 @@
-# HyprCord
 
-HyprCord is a lightweight fork of Equibop focused on performance, simplicity, and Linux friendliness.
 
-The goal is simple:
-Make Discord feel less bloated.
+# 🚀 HyprCord
 
----
-
-## Why?
-
-The official Discord client is heavy.
-Multiple background processes, auto-updaters, telemetry layers, DevTools, RPC bridges — it adds up fast.
-
-HyprCord strips things down to what actually matters:
-
-* Discord
-* A clean wrapper
-* Minimal background overhead
-
-Nothing extra.
+**HyprCord** is a performance-tuned, lightweight fork of [Equibop](https://www.google.com/search?q=https://github.com/equibop/equibop). It is designed specifically for Linux users who want Discord functionality without the massive Electron overhead.
 
 ---
 
-## What’s Different?
+## ⚖️ The "Why"
 
-HyprCord removes or disables:
+The official Discord client is essentially a web browser running a chat app, cluttered with telemetry, background updaters, and unused services. HyprCord strips the bloat to return those system resources to your games and workflow.
 
-* DevTools in production
-* Auto updater
-* arRPC bridge
-* Spellcheck
-* Several Chromium background features
-* Extra background services
+### Performance Comparison
 
-Chromium flags are tuned for lower memory pressure.
-
-Idle RAM usage is significantly lower than stock Discord.
+| Feature | Official Discord | HyprCord |
+| --- | --- | --- |
+| **Idle RAM Usage** | ~800MB+ | **Significantly Lower** |
+| **Telemetry** | Enabled | **Stripped** |
+| **Background Services** | Multiple (RPC, Updaters) | **Minimal** |
+| **Wayland Support** | Experimental/Tweak-heavy | **Native-first** |
 
 ---
 
-## Current Focus
+## 🛠️ Key Optimizations
 
-* Reduce idle memory
-* Reduce background processes
-* Improve startup time
-* Keep the UI clean
-* Remove unnecessary branding
+HyprCord doesn't just hide things; it removes them.
 
-HyprCord is intentionally minimal.
+* **Disabled Bloat:** No `arRPC` bridge, no spellcheck, and no DevTools in production.
+* **Chromium Tuning:** Custom flags specifically set to reduce memory pressure.
+* **Aggressive Cleanup:** All unnecessary background layers and auto-updaters are removed.
+* **Minimal Branding:** A clean, distraction-free UI.
 
 ---
 
-## Building
+## 🚀 Getting Started
 
-Requirements:
+### Prerequisites
 
-* Bun (>= 1.3)
-* Node 18+
-* Electron build deps
+* **Bun** (>= 1.3) — *Required for lightning-fast dependency management.*
+* **Node.js** 18+
+* **Electron Build Dependencies** 30.5.1
 
-Clone:
+### Installation & Build
 
 ```bash
+# Clone the repository
 git clone https://github.com/Bebbesi/HyprCord.git
 cd HyprCord
-```
 
-Install:
-
-```bash
+# Install dependencies with Bun
 bun install
-```
 
-Run:
-
-```bash
+# Run in development mode
 bun run start:dev
-```
 
-Build:
-
-```bash
+# Build & Package for production
 bun run build
-```
-
-Package:
-
-```bash
 bun run package
+
 ```
 
 ---
 
-## Linux / Wayland
+## 🐧 Linux & Wayland
 
-If you're on Wayland:
+HyprCord is built to feel at home on tiling window managers like **Hyprland** or **Sway**.
+
+To run with native Wayland support and smooth fractional scaling, use:
 
 ```bash
 ELECTRON_ENABLE_WAYLAND=1 ELECTRON_OZONE_PLATFORM_HINT=auto bun run start:dev
+
 ```
 
-HyprCord works especially well on Hyprland setups.
+> [!TIP]
+> You can alias this command in your `.bashrc` or `.zshrc` for a faster launch experience.
 
 ---
 
-## License
+## 📜 License & Disclaimer
 
-GPL-3.0
-
-This project inherits licensing from its upstream components.
-
----
-
-## Disclaimer
-
-HyprCord is not affiliated with Discord.
-
-Use at your own risk.
-
----
+* **License:** Distributed under the **GPL-3.0 License**.
+* **Disclaimer:** HyprCord is a third-party modification. It is not affiliated with or endorsed by Discord Inc. **Use at your own risk.**
 

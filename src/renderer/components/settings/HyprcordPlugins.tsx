@@ -26,7 +26,7 @@ export default function HyprcordPlugins() {
 
                 <div className={cl("plugins-placeholder-card")}>
                     <HeadingTertiary>Installed Plugins</HeadingTertiary>
-                    <Paragraph>Manage updates, permissions, and defaults.</Paragraph>
+                    <Paragraph>Manage updates, permissiongs, and defaults.</Paragraph>
                     <Button variant="secondary" disabled>
                         Placeholder
                     </Button>

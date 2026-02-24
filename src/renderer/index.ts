@@ -18,6 +18,7 @@ export * as Components from "./components";
 
 import { VoiceActions } from "@equicord/types/webpack/common";
 
+import HyprcordPlugins from "./components/settings/HyprcordPlugins";
 import SettingsUi from "./components/settings/Settings";
 import { VesktopLogger } from "./logger";
 import { Settings } from "./settings";
@@ -38,11 +39,25 @@ customEntries.push({
     Icon: VesktopSettingsIcon
 });
 
+customEntries.push({
+    key: "equicord_hyprcord_plugins",
+    title: "Hyprcord Plugins",
+    Component: HyprcordPlugins,
+    Icon: VesktopSettingsIcon
+});
+
 customSections.push(() => ({
     section: "HyprcordSettings",
     label: "Hyprcord Settings",
     element: SettingsUi,
     className: "vc-equibop-settings"
+}));
+
+customSections.push(SectionTypes => ({
+    section: SectionTypes.PLUGINS ?? "Plugins",
+    label: "Hyprcord Plugins",
+    element: HyprcordPlugins,
+    className: "vc-hyprcord-plugins"
 }));
 
 VesktopNative.voice.onToggleSelfMute(() => VoiceActions.toggleSelfMute());

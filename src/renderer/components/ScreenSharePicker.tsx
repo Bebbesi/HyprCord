@@ -36,12 +36,15 @@ import { Node } from "@vencord/venmic";
 import type { Dispatch, SetStateAction } from "react";
 import { addPatch } from "renderer/patches/shared";
 import { State, useSettings, useVesktopState } from "renderer/settings";
-import { isLinux, isWindows } from "renderer/utils";
+import { isLinux, isWindows, localStorage } from "renderer/utils";
 
 import { SimpleErrorBoundary } from "./SimpleErrorBoundary";
 
 const StreamResolutions = ["480", "720", "1080", "1440", "2160"] as const;
 const StreamFps = ["15", "30", "60"] as const;
+const MAX_STREAM_HEIGHT = 1080;
+const MAX_STREAM_FPS = 30;
+const LOW_MEMORY_MODE_KEY = "hyprcord:performance:low-memory-mode:v1";
 
 const cl = classNameFactory("vcd-screen-picker-");
 
@@ -77,7 +80,28 @@ interface Source {
 
 export let currentSettings: StreamSettings | null = null;
 
+export function resetCurrentStreamSettings() {
+    currentSettings = null;
+}
+
 const logger = new Logger("EquibopScreenShare");
+
+function getClampedStreamQuality() {
+    const quality = State.store.screenshareQuality;
+    const lowMemoryMode = localStorage.getItem(LOW_MEMORY_MODE_KEY) === "1";
+
+    const rawFrameRate = Number(quality?.frameRate ?? 30);
+    const rawHeight = Number(quality?.resolution ?? 720);
+
+    const maxFps = lowMemoryMode ? 15 : MAX_STREAM_FPS;
+    const maxHeight = lowMemoryMode ? 480 : MAX_STREAM_HEIGHT;
+
+    const frameRate = Math.max(15, Math.min(maxFps, Number.isFinite(rawFrameRate) ? rawFrameRate : 30));
+    const height = Math.max(480, Math.min(maxHeight, Number.isFinite(rawHeight) ? rawHeight : 720));
+    const width = Math.round(height * (16 / 9));
+
+    return { frameRate, height, width };
+}
 
 addPatch({
     patches: [
@@ -90,12 +114,7 @@ addPatch({
         }
     ],
     patchStreamQuality(opts: any) {
-        const { screenshareQuality } = State.store;
-        if (!screenshareQuality) return opts;
-
-        const framerate = Number(screenshareQuality.frameRate);
-        const height = Number(screenshareQuality.resolution);
-        const width = Math.round(height * (16 / 9));
+        const { frameRate, height, width } = getClampedStreamQuality();
 
         Object.assign(opts, {
             bitrateMin: 500000,
@@ -104,14 +123,14 @@ addPatch({
         });
         if (opts?.encode) {
             Object.assign(opts.encode, {
-                framerate,
+                framerate: frameRate,
                 width,
                 height,
                 pixelCount: height * width
             });
         }
         Object.assign(opts.capture, {
-            framerate,
+            framerate: frameRate,
             width,
             height,
             pixelCount: height * width
@@ -132,6 +151,7 @@ if (isLinux) {
             }
 
             VesktopNative.virtmic.stop();
+            resetCurrentStreamSettings();
         };
         FluxDispatcher.subscribe("STREAM_CLOSE", streamCloseCallback);
     });
@@ -146,6 +166,7 @@ export function cleanupScreenShareSubscriptions() {
 
 export function openScreenSharePicker(screens: Source[], skipPicker: boolean) {
     let didSubmit = false;
+    resetCurrentStreamSettings();
     return new Promise<StreamPick>((resolve, reject) => {
         const key = openModal(
             props => (
@@ -169,7 +190,10 @@ export function openScreenSharePicker(screens: Source[], skipPicker: boolean) {
                     }}
                     close={() => {
                         props.onClose();
-                        if (!didSubmit) reject("Aborted");
+                        if (!didSubmit) {
+                            resetCurrentStreamSettings();
+                            reject("Aborted");
+                        }
                     }}
                     skipPicker={skipPicker}
                 />
@@ -177,10 +201,14 @@ export function openScreenSharePicker(screens: Source[], skipPicker: boolean) {
             {
                 onCloseRequest() {
                     closeModal(key);
+                    resetCurrentStreamSettings();
                     reject("Aborted");
                 },
                 onCloseCallback() {
-                    if (!didSubmit) reject("Aborted");
+                    if (!didSubmit) {
+                        resetCurrentStreamSettings();
+                        reject("Aborted");
+                    }
                 }
             }
         );
@@ -364,13 +392,7 @@ function StreamSettingsUi({
     const Settings = useSettings();
     const qualitySettings = State.store.screenshareQuality!;
 
-    const [thumb] = useAwaiter(
-        () => (skipPicker ? Promise.resolve(source.url) : VesktopNative.capturer.getLargeThumbnail(source.id)),
-        {
-            fallbackValue: source.url,
-            deps: [source.id]
-        }
-    );
+    const thumb = source.url;
 
     const openSettings = () => {
         openModal(props => (
@@ -757,9 +779,7 @@ function ModalComponent({
                     onClick={() => {
                         currentSettings = settings;
                         try {
-                            const frameRate = Number(qualitySettings.frameRate);
-                            const height = Number(qualitySettings.resolution);
-                            const width = Math.round(height * (16 / 9));
+                            const { frameRate, height, width } = getClampedStreamQuality();
 
                             const conn = [...MediaEngineStore.getMediaEngine().connections].find(
                                 connection => connection.streamUserId === UserStore.getCurrentUser().id

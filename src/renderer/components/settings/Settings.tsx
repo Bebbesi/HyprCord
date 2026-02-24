@@ -18,6 +18,7 @@ import { DeveloperOptionsButton } from "./DeveloperOptions";
 import { DiscordBranchPicker } from "./DiscordBranchPicker";
 import { NotificationBadgeToggle } from "./NotificationBadgeToggle";
 import { OutdatedVesktopWarning } from "./OutdatedVesktopWarning";
+import { PerformanceSettingsButton } from "./PerformanceSettings";
 import { Updater } from "./Updater";
 import { UserAssetsButton } from "./UserAssets";
 import { VesktopSettingsSwitch } from "./VesktopSettingsSwitch";
@@ -40,6 +41,7 @@ const SettingsOptions: Record<string, Array<BooleanSetting | SettingsComponent>>
     "Discord Branch": [DiscordBranchPicker],
     "System Startup & Performance": [
         AutoStartToggle,
+        PerformanceSettingsButton,
         {
             key: "hardwareAcceleration",
             title: "Hardware Acceleration",

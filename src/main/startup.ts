@@ -23,6 +23,7 @@ import { DATA_DIR } from "./constants";
 import { createFirstLaunchTour } from "./firstLaunch";
 import { createWindows } from "./mainWindow";
 import { registerMediaPermissionsHandler } from "./mediaPermissions";
+import { applyConfiguredMemoryLimit, startMemoryLimitEnforcement, stopMemoryLimitEnforcement } from "./performance";
 import { registerScreenShareHandler } from "./screenShare";
 import { Settings, State } from "./settings";
 import { setAsDefaultProtocolClient } from "./utils/setAsDefaultProtocolClient";
@@ -37,6 +38,7 @@ const isLinux = process.platform === "linux";
 export let enableHardwareAcceleration = true;
 
 function init() {
+    applyConfiguredMemoryLimit();
     setAsDefaultProtocolClient("discord");
 
     const { disableSmoothScroll, hardwareAcceleration, hardwareVideoAcceleration } = Settings.store;
@@ -121,6 +123,7 @@ function init() {
 
         registerScreenShareHandler();
         registerMediaPermissionsHandler();
+        startMemoryLimitEnforcement();
 
         bootstrap();
 
@@ -148,3 +151,5 @@ app.on("open-url", (_, url) => {
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit();
 });
+
+app.on("quit", stopMemoryLimitEnforcement);

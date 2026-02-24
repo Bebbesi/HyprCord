@@ -34,6 +34,7 @@ import { VENCORD_QUICKCSS_FILE, VENCORD_THEMES_DIR } from "./constants";
 import { AppEvents } from "./events";
 import { getPlatformSpoofInfo } from "./gnuSpoofing";
 import { mainWin } from "./mainWindow";
+import { getConfiguredMaxRamMb, setConfiguredMaxRamMb } from "./performance";
 import { Settings, State } from "./settings";
 import { enableHardwareAcceleration } from "./startup";
 import { handle, handleSync } from "./utils/ipcWrappers";
@@ -79,6 +80,27 @@ handle(IpcEvents.ARRPC_OPEN_SETTINGS, () => {
 });
 
 handleSync(IpcEvents.GET_PLATFORM_SPOOF_INFO, () => getPlatformSpoofInfo());
+handle(IpcEvents.GET_PERFORMANCE_RAM_LIMIT, () => getConfiguredMaxRamMb());
+handle(IpcEvents.SET_PERFORMANCE_RAM_LIMIT, async (_e, limitMb: number | null, restart = false) => {
+    const savedLimit = setConfiguredMaxRamMb(limitMb);
+    if (!restart) return savedLimit;
+
+    setBadgeCount(0);
+
+    const options: RelaunchOptions = {
+        args: process.argv.slice(1).concat(["--relaunch"])
+    };
+    if (isDeckGameMode) {
+        await showGamePage();
+    } else if (app.isPackaged && process.env.APPIMAGE) {
+        execFile(process.env.APPIMAGE, options.args);
+    } else {
+        app.relaunch(options);
+    }
+    app.exit();
+
+    return savedLimit;
+});
 
 handle(IpcEvents.SET_SETTINGS, (_, settings: typeof Settings.store, path?: string) => {
     Settings.setData(settings, path);

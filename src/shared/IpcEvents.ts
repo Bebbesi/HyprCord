@@ -75,7 +75,10 @@ export const enum IpcEvents {
 
     CHOOSE_USER_ASSET = "VCD_CHOOSE_USER_ASSET",
 
-    GET_PLATFORM_SPOOF_INFO = "VCD_GET_PLATFORM_SPOOF_INFO"
+    GET_PLATFORM_SPOOF_INFO = "VCD_GET_PLATFORM_SPOOF_INFO",
+
+    GET_PERFORMANCE_RAM_LIMIT = "VCD_GET_PERFORMANCE_RAM_LIMIT",
+    SET_PERFORMANCE_RAM_LIMIT = "VCD_SET_PERFORMANCE_RAM_LIMIT"
 }
 
 export const enum UpdaterIpcEvents {
@@ -96,5 +99,7 @@ export const enum IpcCommands {
 
     GET_LANGUAGES = "navigator.languages",
 
-    SCREEN_SHARE_PICKER = "screenshare:picker"
+    SCREEN_SHARE_PICKER = "screenshare:picker",
+
+    PERFORMANCE_SET_LOW_MEMORY_MODE = "performance:low-memory-mode"
 }

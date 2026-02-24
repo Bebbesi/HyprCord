@@ -57,6 +57,11 @@ export const VesktopNative = {
             ipcRenderer.on(IpcEvents.VESKTOP_RENDERER_CSS_UPDATE, (_e, newCss: string) => cb(newCss));
         }
     },
+    performance: {
+        getMaxRamMb: () => invoke<number | null>(IpcEvents.GET_PERFORMANCE_RAM_LIMIT),
+        setMaxRamMb: (limitMb: number | null, restart = false) =>
+            invoke<number | null>(IpcEvents.SET_PERFORMANCE_RAM_LIMIT, limitMb, restart)
+    },
     autostart: {
         isEnabled: () => sendSync<boolean>(IpcEvents.AUTOSTART_ENABLED),
         enable: () => invoke<void>(IpcEvents.ENABLE_AUTOSTART),

@@ -18,8 +18,8 @@ export function registerScreenShareHandler() {
         const sources = await desktopCapturer.getSources({
             types: ["window", "screen"],
             thumbnailSize: {
-                width: 1920,
-                height: 1080
+                width: 1280,
+                height: 720
             }
         });
         return sources.find(s => s.id === id)?.thumbnail.toDataURL();
@@ -27,7 +27,7 @@ export function registerScreenShareHandler() {
 
     session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
         // request full resolution on wayland right away because we always only end up with one result anyway
-        const width = isWayland ? 1920 : 176;
+        const width = isWayland ? 960 : 128;
         const sources = await desktopCapturer
             .getSources({
                 types: ["window", "screen"],

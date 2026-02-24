@@ -5,11 +5,30 @@
  */
 
 import { Logger } from "@equicord/types/utils";
-import { currentSettings } from "renderer/components/ScreenSharePicker";
+import { currentSettings, resetCurrentStreamSettings } from "renderer/components/ScreenSharePicker";
 import { State } from "renderer/settings";
-import { isLinux } from "renderer/utils";
+import { isLinux, localStorage } from "renderer/utils";
 
 const logger = new Logger("EquibopStreamFixes");
+const MAX_STREAM_HEIGHT = 1080;
+const MAX_STREAM_FPS = 30;
+const LOW_MEMORY_MODE_KEY = "hyprcord:performance:low-memory-mode:v1";
+
+function getClampedStreamQuality() {
+    const lowMemoryMode = localStorage.getItem(LOW_MEMORY_MODE_KEY) === "1";
+
+    const rawFrameRate = Number(State.store.screenshareQuality?.frameRate ?? 30);
+    const rawHeight = Number(State.store.screenshareQuality?.resolution ?? 720);
+
+    const maxFps = lowMemoryMode ? 15 : MAX_STREAM_FPS;
+    const maxHeight = lowMemoryMode ? 480 : MAX_STREAM_HEIGHT;
+
+    const frameRate = Math.max(15, Math.min(maxFps, Number.isFinite(rawFrameRate) ? rawFrameRate : 30));
+    const height = Math.max(480, Math.min(maxHeight, Number.isFinite(rawHeight) ? rawHeight : 720));
+    const width = Math.round(height * (16 / 9));
+
+    return { frameRate, height, width };
+}
 
 if (isLinux) {
     const original = navigator.mediaDevices.getDisplayMedia;
@@ -28,9 +47,7 @@ if (isLinux) {
         const stream = await original.call(this, opts);
         const id = await getVirtmic();
 
-        const frameRate = Number(State.store.screenshareQuality?.frameRate ?? 30);
-        const height = Number(State.store.screenshareQuality?.resolution ?? 720);
-        const width = Math.round(height * (16 / 9));
+        const { frameRate, height, width } = getClampedStreamQuality();
         const track = stream.getVideoTracks()[0];
 
         track.contentHint = String(currentSettings?.contentHint);
@@ -66,8 +83,23 @@ if (isLinux) {
                 }
             });
 
-            stream.getAudioTracks().forEach(t => stream.removeTrack(t));
-            stream.addTrack(audio.getAudioTracks()[0]);
+            for (const audioTrack of stream.getAudioTracks()) {
+                stream.removeTrack(audioTrack);
+                audioTrack.stop();
+            }
+
+            const replacementTrack = audio.getAudioTracks()[0];
+            if (replacementTrack) stream.addTrack(replacementTrack);
+
+            const stopInjectedAudio = () => {
+                audio.getTracks().forEach(t => t.stop());
+                resetCurrentStreamSettings();
+            };
+
+            replacementTrack?.addEventListener("ended", stopInjectedAudio, { once: true });
+            track.addEventListener("ended", stopInjectedAudio, { once: true });
+        } else {
+            track.addEventListener("ended", resetCurrentStreamSettings, { once: true });
         }
 
         return stream;

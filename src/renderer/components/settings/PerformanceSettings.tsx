@@ -119,7 +119,7 @@ function PerformanceSettingsEditor() {
             <Heading tag="h5">Maximum RAM</Heading>
             <Paragraph>
                 Set the maximum RAM budget for Hyprcord. Minimum is {MIN_RAM_MB}MB, and the maximum is Unlimited.
-                Changes only take effect after restart.
+                Changes only take effect after restart. do not set 100 mb it will be unstable
             </Paragraph>
             <Paragraph>
                 When a RAM limit is enabled, Hyprcord will automatically reduce runtime performance if RAM usage goes

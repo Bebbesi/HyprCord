@@ -76,6 +76,10 @@ ELECTRON_ENABLE_WAYLAND=1 ELECTRON_OZONE_PLATFORM_HINT=auto bun run start:dev
 > You can alias this command in your `.bashrc` or `.zshrc` for a faster launch experience.
 
 ---
+## in case you fuck up with the ram settings go to this file to fix it 
+```bash
+/src/main/performanceRescueConfig.ts
+```
 
 ## 📜 License & Disclaimer
 

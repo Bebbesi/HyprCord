@@ -93,3 +93,67 @@
     flex-direction: column;
     gap: 10px;
 }
+
+.vcd-settings-plugins-browser-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.vcd-settings-plugins-browser-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: var(--background-secondary);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vcd-settings-plugins-browser-details {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--text-muted);
+}
+
+.vcd-settings-plugins-browser-details li {
+    margin-bottom: 4px;
+}
+
+.vcd-settings-plugins-installed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vcd-settings-plugins-installed-row {
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--background-secondary);
+}
+
+.vcd-settings-plugins-installed-copy {
+    min-width: 0;
+}
+
+.vcd-settings-plugins-installed-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+    .vcd-settings-plugins-installed-row {
+        flex-direction: column;
+    }
+
+    .vcd-settings-plugins-installed-actions {
+        justify-content: space-between;
+    }
+}

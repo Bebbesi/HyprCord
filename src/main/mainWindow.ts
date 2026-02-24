@@ -25,7 +25,7 @@ import type { SettingsStore } from "shared/utils/SettingsStore";
 
 import { createAboutWindow } from "./about";
 import { destroyAppBadge } from "./appBadge";
-import { cleanupArRPC, initArRPC, setupArRPC } from "./arrpc";
+//import { cleanupArRPC, initArRPC, setupArRPC } from "./arrpc";
 import { CommandLine } from "./cli";
 import { BrowserUserAgent, DEFAULT_HEIGHT, DEFAULT_WIDTH, isLinux, MIN_HEIGHT, MIN_WIDTH } from "./constants";
 import { AppEvents } from "./events";
@@ -50,7 +50,7 @@ app.on("before-quit", async () => {
     isQuitting = true;
     destroyTray();
     destroyAppBadge();
-    await cleanupArRPC();
+    //await cleanupArRPC();
 });
 
 export let mainWin: BrowserWindow;
@@ -261,14 +261,14 @@ function initSpellCheck(win: BrowserWindow) {
     initSpellCheckLanguages(win, Settings.store.spellCheckLanguages);
 }
 
-function initDevtoolsListeners(win: BrowserWindow) {
+/*function initDevtoolsListeners(win: BrowserWindow) {
     win.webContents.on("devtools-opened", () => {
         win.webContents.send(IpcEvents.DEVTOOLS_OPENED);
     });
     win.webContents.on("devtools-closed", () => {
         win.webContents.send(IpcEvents.DEVTOOLS_CLOSED);
     });
-}
+}*/
 
 function initStaticTitle(win: BrowserWindow) {
     const listener = (e: { preventDefault: Function }) => e.preventDefault();
@@ -344,7 +344,7 @@ function buildBrowserWindowOptions(): BrowserWindowConstructorOptions {
             nodeIntegration: false,
             sandbox: true,
             contextIsolation: true,
-            devTools: true,
+            devTools: false,
             preload: join(__dirname, "preload.js"),
             spellcheck: true,
             ...(Settings.store.middleClickAutoscroll && {
@@ -430,7 +430,7 @@ function createMainWindow() {
     makeLinksOpenExternally(win);
     initSettingsListeners(win);
     initSpellCheck(win);
-    initDevtoolsListeners(win);
+    //initDevtoolsListeners(win);
     initStaticTitle(win);
 
     addSplashLog();
@@ -518,7 +518,7 @@ export async function createWindows() {
         }
     });
 
-    setupArRPC();
-    initArRPC();
+    //setupArRPC();
+    //initArRPC();
     if (isLinux) initKeybinds();
 }

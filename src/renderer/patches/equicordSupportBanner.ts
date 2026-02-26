@@ -152,14 +152,23 @@ function patchSupportBanner(root: ParentNode = document) {
 }
 
 function patchSettingsSidebar(root: ParentNode = document) {
-    const walker = document.createTreeWalker(root as Node, NodeFilter.SHOW_TEXT);
-    const nodesToPatch: Text[] = [];
+    const settingsRoots = Array.from(
+        root.querySelectorAll?.<Element>(
+            '[class*="standardSidebarView"], [class*="sidebarRegion"], [class*="contentRegion"]'
+        ) ?? []
+    );
 
-    while (walker.nextNode()) {
-        const node = walker.currentNode as Text;
-        const text = node.nodeValue?.trim();
-        if (text === "Equicord" || text === "Equicord Settings") {
-            nodesToPatch.push(node);
+    if (!settingsRoots.length) return;
+
+    const nodesToPatch = new Set<Text>();
+    for (const settingsRoot of settingsRoots) {
+        const walker = document.createTreeWalker(settingsRoot, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+            const node = walker.currentNode as Text;
+            const text = node.nodeValue?.trim();
+            if (text === "Equicord" || text === "Equicord Settings") {
+                nodesToPatch.add(node);
+            }
         }
     }
 

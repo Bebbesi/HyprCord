@@ -44,6 +44,7 @@ export const VesktopNative = {
                 latestVersion: string;
                 updateAvailable: boolean;
             }>(IpcEvents.HYPRCORD_CHECK_UPDATES),
+        installHyprcordUpdate: () => invoke<void>(IpcEvents.HYPRCORD_INSTALL_UPDATE),
         isDevBuild: () => IS_DEV,
         setBadgeCount: (count: number) => invoke<void>(IpcEvents.SET_BADGE_COUNT, count),
         supportsWindowsTransparency: () => sendSync<boolean>(IpcEvents.SUPPORTS_WINDOWS_TRANSPARENCY),

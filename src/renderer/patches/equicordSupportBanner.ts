@@ -23,6 +23,49 @@ interface HyprcordUpdateCheckResult {
     updateAvailable: boolean;
 }
 
+function findInstallUpdateButton(card: Element) {
+    return card.querySelector<HTMLButtonElement>('[data-hyprcord-install-update-button="true"]');
+}
+
+function showInstallUpdateButton(card: Element, templateButton: HTMLButtonElement, status: HTMLElement) {
+    let installButton = findInstallUpdateButton(card);
+    if (!installButton) {
+        installButton = templateButton.cloneNode(true) as HTMLButtonElement;
+        installButton.textContent = "Install Update";
+        installButton.dataset.hyprcordInstallUpdateButton = "true";
+        installButton.style.marginLeft = "8px";
+        installButton.addEventListener("click", async event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const checkButton = card.querySelector<HTMLButtonElement>('[data-hyprcord-update-bound="true"]');
+            if (checkButton) checkButton.disabled = true;
+            installButton!.disabled = true;
+            status.textContent = "Installing update... Hyprcord will restart automatically.";
+
+            try {
+                await VesktopNative.app.installHyprcordUpdate();
+            } catch (error) {
+                console.error("[Hyprcord] Failed to install update.", error);
+                status.textContent = "Failed to install update. Please try again later.";
+                installButton!.disabled = false;
+                if (checkButton) checkButton.disabled = false;
+            }
+        });
+
+        templateButton.insertAdjacentElement("afterend", installButton);
+    }
+
+    installButton.disabled = false;
+    installButton.hidden = false;
+}
+
+function hideInstallUpdateButton(card: Element) {
+    const installButton = findInstallUpdateButton(card);
+    if (!installButton) return;
+    installButton.hidden = true;
+}
+
 function bindDiscordButton(button: Element) {
     if (button instanceof HTMLAnchorElement) {
         button.textContent = "Discord";
@@ -263,8 +306,10 @@ function patchUpdateButton(root: ParentNode = document) {
 
                 if (updateAvailable) {
                     status.textContent = `A new version is available: ${localVersion} -> ${latestVersion}.`;
+                    showInstallUpdateButton(updatesCard, replacement, status);
                 } else {
                     status.textContent = `Hyprcord is up to date (version ${localVersion}).`;
+                    hideInstallUpdateButton(updatesCard);
                 }
             } catch (error) {
                 console.error("[Hyprcord] Failed to check for updates.", error);

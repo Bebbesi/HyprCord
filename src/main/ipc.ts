@@ -40,7 +40,7 @@ import { enableHardwareAcceleration } from "./startup";
 import { handle, handleSync } from "./utils/ipcWrappers";
 import { PopoutWindows } from "./utils/popout";
 import { isDeckGameMode, showGamePage } from "./utils/steamOS";
-import { isValidVencordInstall } from "./utils/vencordLoader";
+import { downloadLatestInstallerAsset, downloadVencordAsar, isValidVencordInstall } from "./utils/vencordLoader";
 import { VENCORD_DIR } from "./vencordDir";
 
 handleSync(IpcEvents.DEPRECATED_GET_VENCORD_PRELOAD_SCRIPT_PATH, () => join(VENCORD_DIR, "preload.js"));
@@ -171,6 +171,39 @@ handle(IpcEvents.HYPRCORD_CHECK_UPDATES, async () => {
         latestVersion,
         updateAvailable
     };
+});
+handle(IpcEvents.HYPRCORD_INSTALL_UPDATE, async () => {
+    try {
+        await downloadVencordAsar();
+
+        setBadgeCount(0);
+
+        const options: RelaunchOptions = {
+            args: process.argv.slice(1).concat(["--relaunch"])
+        };
+        if (isDeckGameMode) {
+            await showGamePage();
+        } else if (app.isPackaged && process.env.APPIMAGE) {
+            execFile(process.env.APPIMAGE, options.args);
+        } else {
+            app.relaunch(options);
+        }
+        app.exit();
+        return;
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!message.includes("does not contain an .asar asset")) throw error;
+    }
+
+    const { downloadPath, assetName, versionTag } = await downloadLatestInstallerAsset();
+    const openError = await shell.openPath(downloadPath);
+    if (openError) {
+        throw new Error(
+            `Downloaded installer ${assetName} for release ${versionTag} but failed to open it: ${openError}`
+        );
+    }
+
+    app.quit();
 });
 
 handleSync(

@@ -239,7 +239,11 @@ function initSettingsListeners(win: BrowserWindow) {
         win.setAutoHideMenuBar(enabled ?? false);
     });
 
-    addSettingsListener("spellCheckLanguages", languages => initSpellCheckLanguages(win, languages));
+    addSettingsListener("spellCheckLanguages", languages => {
+        void initSpellCheckLanguages(win, languages).catch(err => {
+            console.error("[Spellcheck] Failed to update spellcheck languages:", err);
+        });
+    });
 }
 
 async function initSpellCheckLanguages(_win: BrowserWindow, languages?: string[]) {
@@ -258,7 +262,9 @@ function initSpellCheck(win: BrowserWindow) {
         win.webContents.send(IpcEvents.SPELLCHECK_RESULT, data.misspelledWord, data.dictionarySuggestions);
     });
 
-    initSpellCheckLanguages(win, Settings.store.spellCheckLanguages);
+    void initSpellCheckLanguages(win, Settings.store.spellCheckLanguages).catch(err => {
+        console.error("[Spellcheck] Failed to initialize spellcheck languages:", err);
+    });
 }
 
 /*function initDevtoolsListeners(win: BrowserWindow) {

@@ -49,6 +49,87 @@ handleSync(IpcEvents.GET_VENCORD_RENDERER_SCRIPT, () => readFileSync(join(VENCOR
 
 const VESKTOP_RENDERER_JS_PATH = join(__dirname, "renderer.js");
 const VESKTOP_RENDERER_CSS_PATH = join(__dirname, "renderer.css");
+const HYPRCORD_RELEASES_LATEST_API = "https://api.github.com/repos/Bebbesi/HyprCord/releases/latest";
+
+interface SemverParts {
+    major: number;
+    minor: number;
+    patch: number;
+    prerelease: string[] | null;
+}
+
+function normalizeVersion(version: string) {
+    return version.trim().replace(/^v/, "");
+}
+
+function parseSemver(version: string): SemverParts | null {
+    const normalized = normalizeVersion(version);
+    const match = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(normalized);
+    if (!match) return null;
+
+    return {
+        major: Number(match[1]),
+        minor: Number(match[2]),
+        patch: Number(match[3]),
+        prerelease: match[4] ? match[4].split(".") : null
+    };
+}
+
+function comparePrerelease(a: string[] | null, b: string[] | null) {
+    if (!a && !b) return 0;
+    if (!a) return 1;
+    if (!b) return -1;
+
+    const maxLength = Math.max(a.length, b.length);
+    for (let i = 0; i < maxLength; i++) {
+        const ai = a[i];
+        const bi = b[i];
+        if (ai === undefined) return -1;
+        if (bi === undefined) return 1;
+        if (ai === bi) continue;
+
+        const aIsNumeric = /^\d+$/.test(ai);
+        const bIsNumeric = /^\d+$/.test(bi);
+        if (aIsNumeric && bIsNumeric) {
+            return Number(ai) - Number(bi);
+        }
+        if (aIsNumeric) return -1;
+        if (bIsNumeric) return 1;
+        return ai < bi ? -1 : 1;
+    }
+
+    return 0;
+}
+
+function compareSemver(left: string, right: string) {
+    const a = parseSemver(left);
+    const b = parseSemver(right);
+    if (!a || !b) {
+        return normalizeVersion(left).localeCompare(normalizeVersion(right), undefined, { numeric: true });
+    }
+
+    if (a.major !== b.major) return a.major - b.major;
+    if (a.minor !== b.minor) return a.minor - b.minor;
+    if (a.patch !== b.patch) return a.patch - b.patch;
+
+    return comparePrerelease(a.prerelease, b.prerelease);
+}
+
+async function getLocalPackageVersion() {
+    const packageJsonPath = join(app.getAppPath(), "package.json");
+    const packageJsonRaw = await readFile(packageJsonPath, "utf-8");
+    const packageJson = JSON.parse(packageJsonRaw) as { version?: unknown };
+
+    if (typeof packageJson.version !== "string") {
+        throw new Error("Invalid package.json: missing version");
+    }
+
+    return normalizeVersion(packageJson.version);
+}
+
+interface GithubLatestReleaseResponse {
+    tag_name?: unknown;
+}
 handleSync(IpcEvents.GET_VESKTOP_RENDERER_SCRIPT, () => readFileSync(VESKTOP_RENDERER_JS_PATH, "utf-8"));
 handle(IpcEvents.GET_VESKTOP_RENDERER_CSS, () => readFile(VESKTOP_RENDERER_CSS_PATH, "utf-8"));
 
@@ -65,6 +146,32 @@ handleSync(IpcEvents.GET_SETTINGS, () => Settings.plain);
 handleSync(IpcEvents.GET_VERSION, () => app.getVersion());
 handleSync(IpcEvents.GET_GIT_HASH, () => EQUIBOP_GIT_HASH);
 handleSync(IpcEvents.GET_ENABLE_HARDWARE_ACCELERATION, () => enableHardwareAcceleration);
+handle(IpcEvents.HYPRCORD_CHECK_UPDATES, async () => {
+    const localVersion = await getLocalPackageVersion();
+    const response = await fetch(HYPRCORD_RELEASES_LATEST_API, {
+        headers: {
+            Accept: "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28"
+        }
+    });
+    if (!response.ok) {
+        throw new Error(`GitHub latest release request failed (${response.status})`);
+    }
+
+    const release = (await response.json()) as GithubLatestReleaseResponse;
+    if (typeof release.tag_name !== "string") {
+        throw new Error("GitHub latest release response is missing tag_name");
+    }
+
+    const latestVersion = normalizeVersion(release.tag_name);
+    const updateAvailable = compareSemver(localVersion, latestVersion) < 0;
+
+    return {
+        localVersion,
+        latestVersion,
+        updateAvailable
+    };
+});
 
 handleSync(
     IpcEvents.SUPPORTS_WINDOWS_TRANSPARENCY,

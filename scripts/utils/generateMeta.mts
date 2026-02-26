@@ -36,7 +36,7 @@ function generateDescription(description: string, descriptionNode: Element) {
     }
 }
 
-const releases = await fetch("https://api.github.com/repos/Equicord/Equibop/releases", {
+const releases = await fetch("https://api.github.com/repos/Bebbesi/HyprCord/releases", {
     headers: {
         Accept: "application/vnd.github+json",
         "X-Github-Api-Version": "2022-11-28"

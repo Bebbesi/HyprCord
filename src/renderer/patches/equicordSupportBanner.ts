@@ -5,10 +5,47 @@
  */
 
 const HYPRCORD_REPO_URL = "https://github.com/Bebbesi/HyprCord";
+const HYPRCORD_REPO_LABEL = "Bebbesi/HyprCord";
 const HYPRCORD_ICON_URL = "equibop://static/icon.png";
+const HYPRCORD_DISCORD_URL = "https://discord.gg/NtduskfeWh";
 
 function openHyprcordRepo() {
     window.open(HYPRCORD_REPO_URL, "_blank", "noopener,noreferrer");
+}
+
+function openHyprcordDiscord() {
+    window.open(HYPRCORD_DISCORD_URL, "_blank", "noopener,noreferrer");
+}
+
+interface HyprcordUpdateCheckResult {
+    localVersion: string;
+    latestVersion: string;
+    updateAvailable: boolean;
+}
+
+function bindDiscordButton(button: Element) {
+    if (button instanceof HTMLAnchorElement) {
+        button.textContent = "Discord";
+        button.setAttribute("href", HYPRCORD_DISCORD_URL);
+        button.setAttribute("target", "_blank");
+        button.setAttribute("rel", "noopener noreferrer");
+        button.dataset.hyprcordDiscordBound = "true";
+        return;
+    }
+
+    if (button instanceof HTMLButtonElement) {
+        if (button.dataset.hyprcordDiscordBound === "true" && button.textContent?.trim() === "Discord") return;
+
+        const replacement = button.cloneNode(true) as HTMLButtonElement;
+        replacement.textContent = "Discord";
+        replacement.dataset.hyprcordDiscordBound = "true";
+        replacement.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            openHyprcordDiscord();
+        });
+        button.replaceWith(replacement);
+    }
 }
 
 function findContainerWithButtons(start: Element, buttonTexts: string[]) {
@@ -49,11 +86,18 @@ function patchSupportBanner(root: ParentNode = document) {
         }
 
         const buttons = card.querySelectorAll("button, a");
+        let discordButtonBound = false;
         for (const button of buttons) {
             const text = button.textContent?.trim();
-            if (text === "Donate" || text === "Invite") {
-                button.remove();
+            if (text !== "Donate" && text !== "Invite" && text !== "Discord") continue;
+
+            if (!discordButtonBound) {
+                bindDiscordButton(button);
+                discordButtonBound = true;
+                continue;
             }
+
+            button.remove();
         }
 
         const icon = card.querySelector("img");
@@ -122,6 +166,117 @@ function patchQuickActions(root: ParentNode = document) {
     }
 }
 
+function patchUpdateRepository(root: ParentNode = document) {
+    const repositoryHeading = Array.from(root.querySelectorAll("h1, h2, h3, h4, h5, h6")).find(
+        node => node.textContent?.trim() === "Repository"
+    );
+    if (!repositoryHeading) return;
+
+    let repositoryCard: Element | null = repositoryHeading;
+    while (repositoryCard && repositoryCard !== document.body) {
+        const links = Array.from(repositoryCard.querySelectorAll("a")).filter(link => {
+            const text = link.textContent ?? "";
+            const href = link.getAttribute("href") ?? "";
+            return (
+                text.includes("Equicord/Equicord") ||
+                href.includes("github.com/Equicord/Equicord") ||
+                link.dataset.hyprcordRepoLink === "true"
+            );
+        });
+
+        if (links.length) {
+            for (const link of links) {
+                link.textContent = HYPRCORD_REPO_LABEL;
+                link.setAttribute("href", HYPRCORD_REPO_URL);
+                link.setAttribute("target", "_blank");
+                link.setAttribute("rel", "noopener noreferrer");
+                link.dataset.hyprcordRepoLink = "true";
+            }
+
+            for (const node of repositoryCard.querySelectorAll("p")) {
+                const text = node.textContent;
+                if (!text || !text.includes("where Equicord fetches updates from")) continue;
+                node.textContent = text.replace("Equicord", "Hyprcord");
+            }
+            break;
+        }
+        repositoryCard = repositoryCard.parentElement;
+    }
+}
+
+function findUpdateStatusElement(card: Element) {
+    const existingStatus = card.querySelector<HTMLElement>('[data-hyprcord-update-status="true"]');
+    if (existingStatus) return existingStatus;
+
+    const textStatus = Array.from(card.querySelectorAll<HTMLElement>("p, div, span")).find(node => {
+        const text = node.textContent?.trim().toLowerCase();
+        if (!text) return false;
+
+        return (
+            text.includes("running the latest version") ||
+            text.includes("new version is available") ||
+            text.includes("failed to check")
+        );
+    });
+
+    if (textStatus) {
+        textStatus.dataset.hyprcordUpdateStatus = "true";
+        return textStatus;
+    }
+
+    const createdStatus = document.createElement("div");
+    createdStatus.dataset.hyprcordUpdateStatus = "true";
+    createdStatus.style.marginTop = "8px";
+    createdStatus.style.fontSize = "14px";
+    createdStatus.style.lineHeight = "20px";
+    card.appendChild(createdStatus);
+    return createdStatus;
+}
+
+function patchUpdateButton(root: ParentNode = document) {
+    const updatesHeading = Array.from(root.querySelectorAll("h1, h2, h3, h4, h5, h6")).find(
+        node => node.textContent?.trim() === "Updates"
+    );
+    if (!updatesHeading) return;
+
+    const updatesCard = findContainerWithButtons(updatesHeading, ["Check for Updates"]);
+    if (!updatesCard) return;
+
+    const buttons = updatesCard.querySelectorAll("button");
+    for (const button of buttons) {
+        if (button.textContent?.trim() !== "Check for Updates") continue;
+        if (button.dataset.hyprcordUpdateBound === "true") continue;
+
+        const replacement = button.cloneNode(true) as HTMLButtonElement;
+        replacement.dataset.hyprcordUpdateBound = "true";
+        replacement.addEventListener("click", async event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const status = findUpdateStatusElement(updatesCard);
+            replacement.disabled = true;
+            status.textContent = "Checking for updates...";
+
+            try {
+                const { localVersion, latestVersion, updateAvailable } =
+                    (await VesktopNative.app.checkHyprcordUpdates()) as HyprcordUpdateCheckResult;
+
+                if (updateAvailable) {
+                    status.textContent = `A new version is available: ${localVersion} -> ${latestVersion}.`;
+                } else {
+                    status.textContent = `Hyprcord is up to date (version ${localVersion}).`;
+                }
+            } catch (error) {
+                console.error("[Hyprcord] Failed to check for updates.", error);
+                status.textContent = "Failed to check for updates. Please try again later.";
+            } finally {
+                replacement.disabled = false;
+            }
+        });
+        button.replaceWith(replacement);
+    }
+}
+
 let pending = false;
 const observer = new MutationObserver(() => {
     if (pending) return;
@@ -130,6 +285,8 @@ const observer = new MutationObserver(() => {
         pending = false;
         patchSupportBanner();
         patchQuickActions();
+        patchUpdateRepository();
+        patchUpdateButton();
         patchSettingsSidebar();
     });
 });
@@ -140,6 +297,8 @@ if (document.readyState === "loading") {
         () => {
             patchSupportBanner();
             patchQuickActions();
+            patchUpdateRepository();
+            patchUpdateButton();
             patchSettingsSidebar();
             observer.observe(document.body, { childList: true, subtree: true });
         },
@@ -148,6 +307,8 @@ if (document.readyState === "loading") {
 } else {
     patchSupportBanner();
     patchQuickActions();
+    patchUpdateRepository();
+    patchUpdateButton();
     patchSettingsSidebar();
     observer.observe(document.body, { childList: true, subtree: true });
 }

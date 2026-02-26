@@ -1,88 +1,130 @@
 
+````markdown
+<p align="center">
+  <img src="icon.png" alt="HyprCord Logo" width="120">
+</p>
 
-# 🚀 HyprCord
+<h1 align="center">HyprCord</h1>
 
-**HyprCord** is a performance-tuned, lightweight fork of [Equibop](https://www.google.com/search?q=https://github.com/equibop/equibop). It is designed specifically for Linux users who want Discord functionality without the massive Electron overhead.
+<p align="center">
+A performance-focused fork of Equibop.
+</p>
 
 ---
 
-## ⚖️ The "Why"
+## Overview
 
-The official Discord client is essentially a web browser running a chat app, cluttered with telemetry, background updaters, and unused services. HyprCord strips the bloat to return those system resources to your games and workflow.
+**HyprCord** is a performance-tuned fork of **Equibop**, optimized specifically for Linux and Windows users who want Discord functionality with reduced Electron overhead and better Wayland integration.
 
-### Performance Comparison
+This project builds directly on Equibop while focusing on memory efficiency, stripped background services, and a cleaner runtime profile.
+
+---
+
+## Why HyprCord?
+
+The official Discord client ships with:
+
+- Heavy Electron overhead  
+- Telemetry services  
+- Background updaters  
+- Extra RPC layers  
+- Development tooling included in production  
+
+HyprCord removes or disables unnecessary components to reduce memory usage and improve system responsiveness.
+
+---
+
+## Performance Comparison
 
 | Feature | Official Discord | HyprCord |
-| --- | --- | --- |
-| **Idle RAM Usage** | ~800MB+ | **Significantly Lower** |
-| **Telemetry** | Enabled | **Stripped** |
-| **Background Services** | Multiple (RPC, Updaters) | **Minimal** |
-| **Wayland Support** | Experimental/Tweak-heavy | **Native-first** |
+|----------|------------------|-----------|
+| Idle RAM Usage | ~800MB+ | Reduced |
+| Telemetry | Enabled | Stripped |
+| Background Services | Multiple | Minimal |
+| Wayland Support | Experimental | Native-first |
 
 ---
 
-## 🛠️ Key Optimizations
+## Key Changes From Equibop
 
-HyprCord doesn't just hide things; it removes them.
-
-* **Disabled Bloat:** No `arRPC` bridge, no spellcheck, and no DevTools in production.
-* **Chromium Tuning:** Custom flags specifically set to reduce memory pressure.
-* **Aggressive Cleanup:** All unnecessary background layers and auto-updaters are removed.
-* **Minimal Branding:** A clean, distraction-free UI.
+- Aggressive removal of unnecessary background services  
+- arRPC bridge disabled  
+- DevTools removed from production builds  
+- Spellcheck disabled  
+- Custom Chromium flags tuned for lower memory pressure  
+- Auto-updaters stripped  
+- Minimal branding adjustments  
 
 ---
 
-## 🚀 Getting Started
+## Requirements
 
-### Prerequisites
+- Bun >= 1.3  
+- Node.js 18+  
+- Electron 30.5.1 build dependencies  
 
-* **Bun** (>= 1.3) — *Required for lightning-fast dependency management.*
-* **Node.js** 18+
-* **Electron Build Dependencies** 30.5.1
+---
 
-### Installation & Build
+## Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/Bebbesi/HyprCord.git
 cd HyprCord
-
-# Install dependencies with Bun
 bun install
+````
 
-# Run in development mode
+---
+
+## Development
+
+```bash
 bun run start:dev
-
-# Build & Package for production
-bun run build
-bun run package
-
 ```
 
 ---
 
-## 🐧 Linux & Wayland
+## Production Build
 
-HyprCord is built to feel at home on tiling window managers like **Hyprland** or **Sway**.
+```bash
+bun run build
+bun run package
+```
 
-To run with native Wayland support and smooth fractional scaling, use:
+---
+
+## Wayland Support
+
+For native Wayland support:
 
 ```bash
 ELECTRON_ENABLE_WAYLAND=1 ELECTRON_OZONE_PLATFORM_HINT=auto bun run start:dev
-
 ```
 
-> [!TIP]
-> You can alias this command in your `.bashrc` or `.zshrc` for a faster launch experience.
-
 ---
-## in case you fuck up with the ram settings go to this file to fix it 
-```bash
+
+## Performance Rescue
+
+If performance settings are misconfigured, review:
+
+```
 /src/main/performanceRescueConfig.ts
 ```
 
-## 📜 License & Disclaimer
+---
 
-* **License:** Distributed under the **GPL-3.0 License**.
-* **Disclaimer:** HyprCord is a third-party modification. It is not affiliated with or endorsed by Discord Inc. **Use at your own risk.**
+## Upstream
 
+HyprCord is based on and depends on the work of the Equibop project.
+All core functionality originates from Equibop, with additional performance-focused modifications applied here.
+
+---
+
+## License
+
+GPL-3.0 (inherits upstream licensing where applicable)
+
+---
+
+## Disclaimer
+
+HyprCord is a third-party modification and is not affiliated with or endorsed by Discord Inc. Even though the risk of being banned is almost zero, use it at your own risk.

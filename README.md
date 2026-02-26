@@ -11,7 +11,7 @@ A performance-focused fork of Equibop.
 
 ---
 <p align="center">
-  <a href="https://aur.archlinux.org/packages/hyprcord-bin">
+  <a href="https://aur.archlinux.org/hyprcord-bin.git">
     <img src="https://img.shields.io/aur/version/hyprcord?logo=archlinux&color=1793d1" alt="Available on AUR">
   </a>
   <a href="https://discord.gg/m4mkhvcsQe">

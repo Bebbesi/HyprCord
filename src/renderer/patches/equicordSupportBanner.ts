@@ -31,7 +31,7 @@ function showInstallUpdateButton(card: Element, templateButton: HTMLButtonElemen
     let installButton = findInstallUpdateButton(card);
     if (!installButton) {
         installButton = templateButton.cloneNode(true) as HTMLButtonElement;
-        installButton.textContent = "Install Update";
+        installButton.textContent = "Fallback update";
         installButton.dataset.hyprcordInstallUpdateButton = "true";
         installButton.style.marginLeft = "8px";
         installButton.addEventListener("click", async event => {

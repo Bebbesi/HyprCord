@@ -1,5 +1,4 @@
 
-````markdown
 <p align="center">
   <img src="icon.png" alt="HyprCord Logo" width="120">
 </p>

@@ -1,6 +1,6 @@
 {
     "name": "hyprcord",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "private": true,
     "description": "hyprcord is a custom Discord desktop app",
     "keywords": [],
@@ -69,8 +69,8 @@
     },
     "build": {
         "appId": "org.equicord.equibop",
-        "productName": "Equibop",
-        "executableName": "equibop",
+        "productName": "Hyprcord",
+        "executableName": "Hyprcord",
         "files": [
             "!*",
             "!node_modules",
@@ -123,11 +123,11 @@
             ],
             "desktop": {
                 "entry": {
-                    "Name": "Equibop",
+                    "Name": "Hyprcord",
                     "GenericName": "Internet Messenger",
                     "Type": "Application",
                     "Categories": "Network;InstantMessaging;Chat;",
-                    "Keywords": "discord;vencord;electron;chat;equibop",
+                    "Keywords": "discord;vencord;electron;chat;hyprcord",
                     "MimeType": "x-scheme-handler/discord",
                     "StartupWMClass": "equibop"
                 }

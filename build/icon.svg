@@ -1,11 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
-  <linearGradient id="d" y1="12.5%" x2="0%" x1="0%" y2="87.5%" gradientUnits="userSpaceOnUse">
-    <stop stop-color="#404040" />
-    <stop stop-color="#2c2c2c" offset="1" />
-  </linearGradient>
-  <circle r="32.3" cx="128" cy="128" fill="url(#d)" />
-  <line x2="201" stroke="url(#d)" y2="95" x1="128" y1="128" stroke-width="28" />
-  <circle r="80" cx="128" cy="128" fill="none" stroke="#595a5a" stroke-width="35" />
-  <circle r="80" cx="128" cy="128" fill="none" stroke="url(#d)" stroke-width="35.5" stroke-linecap="round" stroke-dasharray="59 218 999" />
-  <line x2="128" stroke="#595a5a" y2="128" x1="55" y1="161" stroke-width="28" stroke-linecap="round" />
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="256.000000pt" height="256.000000pt" viewBox="0 0 256.000000 256.000000"
+ preserveAspectRatio="xMidYMid meet">
+
+<g transform="translate(0.000000,256.000000) scale(0.100000,-0.100000)"
+fill="#000000" stroke="none">
+<path d="M1175 2249 c-251 -26 -504 -165 -661 -362 -199 -250 -263 -588 -167
+-891 102 -322 342 -555 683 -658 94 -29 328 -36 439 -14 271 55 526 237 663
+471 93 161 133 325 125 520 -8 198 -59 356 -165 512 -199 293 -560 459 -917
+422z m285 -385 c41 -13 102 -39 135 -59 66 -40 169 -135 157 -146 -4 -4 -64
+-33 -134 -64 l-126 -57 -68 33 c-61 30 -77 34 -149 33 -58 -1 -93 -6 -127 -22
+-99 -44 -174 -143 -187 -246 l-6 -49 -140 -64 c-96 -44 -142 -60 -149 -53 -6
+6 -10 52 -10 108 2 165 62 300 189 427 173 174 388 230 615 159z m436 -520
+c33 -268 -141 -552 -399 -649 -172 -64 -347 -53 -512 33 -69 36 -195 144 -195
+166 1 6 62 39 136 73 l136 63 27 -19 c88 -63 223 -75 322 -29 98 45 161 127
+184 237 l11 54 135 63 c74 34 137 63 141 63 4 1 10 -24 14 -55z"/>
+</g>
 </svg>

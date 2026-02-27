@@ -20,6 +20,7 @@ import { cl } from "./Settings";
 
 export default function HyprcordPlugins() {
     const [pluginsState, setPluginsState] = useState<HyprcordPluginsState>(loadHyprcordPluginsState());
+    const pluginSuggestionUrl = "https://discord.gg/m4mkhvcsQe";
 
     useEffect(() => onHyprcordPluginsStateChange(setPluginsState), []);
 
@@ -97,6 +98,7 @@ export default function HyprcordPlugins() {
     };
 
     const installedPlugins = HYPRCORD_AVAILABLE_PLUGINS.filter(plugin => pluginsState[plugin.id].installed);
+    const openSuggestionServer = () => window.open(pluginSuggestionUrl, "_blank", "noopener,noreferrer");
 
     return (
         <section className={cl("plugins-placeholder")}>
@@ -148,6 +150,13 @@ export default function HyprcordPlugins() {
                         </div>
                     )}
                 </div>
+            </div>
+
+            <div className={cl("plugins-suggest")}>
+                <Paragraph>Want to suggest a plugin?</Paragraph>
+                <Button variant="secondary" onClick={openSuggestionServer}>
+                    Join the Discord server
+                </Button>
             </div>
         </section>
     );

@@ -151,6 +151,13 @@
     flex-shrink: 0;
 }
 
+.vcd-settings-plugins-suggest {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 @media (max-width: 700px) {
     .vcd-settings-plugins-installed-row {
         flex-direction: column;
